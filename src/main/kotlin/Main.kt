@@ -125,6 +125,8 @@ fun App() {
                     modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = {
                         downloadButtonText = if (downloadButtonText == START) STOP else START
+                        downloadPercentage = "0"
+
                         if (!isDownloading) {
                             isDownloading = true
 
@@ -148,14 +150,7 @@ fun App() {
                     Text(text = downloadButtonText)
                 }
 
-                DownloadProgressIndicator(
-                    percentValue = downloadPercentage,
-                    onDownloadError = { errorMessage ->
-                        println(errorMessage)
-                    },
-                    onDownloadComplete = {
-                    }
-                )
+                Text(text = if (downloadPercentage == "100") "DOWNLOAD COMPLETE" else "${downloadPercentage}%")
 
             }
         }
@@ -245,24 +240,6 @@ private fun findDownloadProgress(str: String): String {
     }
 
     return percentValue.replace("%", "")
-}
-
-@Composable
-@Preview
-fun DownloadProgressIndicator(
-    modifier: Modifier = Modifier,
-    percentValue: String = "0",
-    onDownloadComplete: () -> Unit,
-    onDownloadError: (errorMessage: String) -> Unit,
-) {
-    Text(
-        if (percentValue == "100") {
-            "DOWNLOAD COMPLETE"
-        } else {
-            "${percentValue}%"
-        }
-    )
-
 }
 
 fun main() = application {
