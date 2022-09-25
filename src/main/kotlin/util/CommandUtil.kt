@@ -1,4 +1,4 @@
-package Util
+package util
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

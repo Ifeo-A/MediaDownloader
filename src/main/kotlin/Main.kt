@@ -2,13 +2,14 @@ import Constants.AUDIO_FORMAT
 import Constants.AUDIO_OPTIONS
 import Constants.Buttons.START
 import Constants.Buttons.STOP
+import Constants.DOWNLOAD_COMPLETE
 import Constants.INVALID_FILE_PATH
 import Constants.SAVE_LOCATION
 import Constants.URL_PLACEHOLDER
 import Constants.VIDEO_FORMAT
 import Constants.VIDEO_OPTIONS
-import Util.CommandUtil
-import Util.DownloadUtil
+import util.CommandUtil
+import util.DownloadUtil
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.desktop.ui.tooling.preview.Preview
@@ -23,18 +24,7 @@ import androidx.compose.ui.window.application
 import components.DropDown
 import components.FilePicker
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 @Composable
 @Preview
@@ -44,11 +34,14 @@ fun App() {
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
     var downloadButtonText by remember { mutableStateOf("START") }
+    var downloadProcess: Process? by remember { mutableStateOf(null) }
     var isDownloading by remember { mutableStateOf(false) }
+    var mediaName: String by remember { mutableStateOf("") }
     var filePath: String? by remember { mutableStateOf("") }
     val myCoroutineScope = rememberCoroutineScope()
     val downloadUtil = DownloadUtil()
     val commandUtil = CommandUtil()
+
 
     MaterialTheme {
         Column(
@@ -144,15 +137,35 @@ fun App() {
                             //  already exists and if it does then not to start download
                             myCoroutineScope.launch(Dispatchers.IO) {
                                 launch {
-                                    downloadUtil.startDownload(commandUtil).collect { (process ,_downloadPercentage) ->
-                                        if (_downloadPercentage == "100") {
+                                    downloadUtil.startDownload(commandUtil).collect { downloadProperties ->
+                                        if (downloadProperties.downloadPercentageCompleted == "100") {
+                                            //Download is complete
                                             isDownloading = false
                                             downloadButtonText = START
                                         }
-                                        downloadPercentage = _downloadPercentage
+
+                                        if (downloadProcess == null) {
+                                            downloadProcess = downloadProperties.process
+                                        }
+
+                                        if(downloadProperties.mediaName.isNotEmpty()){
+                                            mediaName = downloadProperties.mediaName
+                                        }
+                                        downloadPercentage = downloadProperties.downloadPercentageCompleted
                                         println("Download Percentage: ${downloadPercentage}%")
                                     }
                                 }
+                            }
+                        }
+
+                        // isDownloading will be true at this point if the user already pressed the START button
+                        if(isDownloading){
+                            downloadProcess?.let { process ->
+                                downloadUtil.stopDownload(process)
+//                                downloadUtil.deleteUnfinishedDownloadedFile(
+//                                    "/Users/ife/Documents/mediaDownloader"
+//                                )
+                                downloadProcess = null
                             }
                         }
                     }
@@ -160,7 +173,10 @@ fun App() {
                     Text(text = downloadButtonText)
                 }
 
-                Text(text = if (downloadPercentage == "100") "DOWNLOAD COMPLETE" else "${downloadPercentage}%")
+                if(mediaName.isNotEmpty()){
+                    Text(text = "Downloading: $mediaName")
+                }
+                Text(text = if (downloadPercentage == "100") DOWNLOAD_COMPLETE else "${downloadPercentage}%")
 
             }
         }
