@@ -59,19 +59,19 @@ object DownloadUtil {
     /**
      * Returns string value representing the download progress
      *
-     * @param String String to search for download percentage e.g "[download] 34.9% ..."
+     * @param String - String to search for download percentage e.g "[download] 34.9% ..."
      * @return String - containing download percentage value e.g "39" without the percentage sign
      */
     private fun findDownloadProgress(str: String): String {
 
         // Given the string "[download]   0.3% of 2.56MiB at 63.91KiB/s ETA 00:40"
         // This will match "0.3%"
-        val regexPattern2 = "\\b(?<!\\.)(?!0+(?:\\.0+)?%)(?:\\d|[1-9]\\d|100)(?:(?<!100)\\.\\d+)?%"
-        val pattern2: Pattern = Pattern.compile(regexPattern2)
-        val matcher2: Matcher = pattern2.matcher(str)
+        val regexPatternPercentage = "\\b(?<!\\.)(?!0+(?:\\.0+)?%)(?:\\d|[1-9]\\d|100)(?:(?<!100)\\.\\d+)?%"
+        val regexPatternPercentagePattern: Pattern = Pattern.compile(regexPatternPercentage)
+        val regexPatternPercentagePatternMatcher: Matcher = regexPatternPercentagePattern.matcher(str)
 
-        val percentValue = if (matcher2.find()) {
-            matcher2.group(0)
+        val percentValue = if (regexPatternPercentagePatternMatcher.find()) {
+            regexPatternPercentagePatternMatcher.group(0)
         } else {
             // No match
             "0"
@@ -84,8 +84,8 @@ object DownloadUtil {
         // Pattern to find the line that contains the string [download]
         // Given the string "[download] Destination: MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
         // This will match "MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
-        val regexPatternVideoName = "(?<=] Destination: )(.*)"
-        val mediaNamePattern: Pattern = Pattern.compile(regexPatternVideoName)
+        val regexPatternMediaName = "(?<=] Destination: )(.*)"
+        val mediaNamePattern: Pattern = Pattern.compile(regexPatternMediaName)
         val mediaNameMatcher: Matcher = mediaNamePattern.matcher(str)
 
         val mediaTitle: String =
