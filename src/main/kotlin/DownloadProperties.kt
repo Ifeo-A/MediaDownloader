@@ -1,5 +1,5 @@
 data class DownloadProperties(
-    val mediaName: String,
+    val mediaTitle: String,
     val downloadPercentageCompleted: String,
     val process: Process
 )

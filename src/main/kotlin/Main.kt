@@ -23,8 +23,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.DropDown
 import components.FilePicker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @Composable
 @Preview
@@ -39,8 +38,9 @@ fun App() {
     var mediaName: String by remember { mutableStateOf("") }
     var filePath: String? by remember { mutableStateOf("") }
     val myCoroutineScope = rememberCoroutineScope()
-    val downloadUtil = DownloadUtil()
-    val commandUtil = CommandUtil()
+    var downloadJob: Job? = null
+    val downloadUtil = DownloadUtil
+    val commandUtil = CommandUtil
 
 
     MaterialTheme {
@@ -128,44 +128,50 @@ fun App() {
                     modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = {
                         downloadButtonText = if (downloadButtonText == START) STOP else START
-                        downloadPercentage = "0"
 
                         if (!isDownloading) {
+                            downloadPercentage = "0"
                             isDownloading = true
 
                             // TODO logic to check if the filename that the download would produce
                             //  already exists and if it does then not to start download
-                            myCoroutineScope.launch(Dispatchers.IO) {
-                                launch {
-                                    downloadUtil.startDownload(commandUtil).collect { downloadProperties ->
-                                        if (downloadProperties.downloadPercentageCompleted == "100") {
-                                            //Download is complete
-                                            isDownloading = false
-                                            downloadButtonText = START
-                                        }
 
-                                        if (downloadProcess == null) {
-                                            downloadProcess = downloadProperties.process
-                                        }
-
-                                        if(downloadProperties.mediaName.isNotEmpty()){
-                                            mediaName = downloadProperties.mediaName
-                                        }
-                                        downloadPercentage = downloadProperties.downloadPercentageCompleted
-                                        println("Download Percentage: ${downloadPercentage}%")
+                            downloadJob = myCoroutineScope.launch(Dispatchers.IO) {
+                                println("Starting download")
+                                downloadUtil.startDownload(commandUtil).collect { downloadProperties ->
+                                    if (downloadProperties.downloadPercentageCompleted == "100") {
+                                        //Download is complete
+                                        isDownloading = false
+                                        downloadButtonText = START
                                     }
+
+                                    if(downloadProcess == null && downloadProperties.process.isAlive){
+                                        println("Assigning new process")
+                                        downloadProcess = downloadProperties.process
+                                    }
+
+                                    if(downloadProperties.mediaTitle.isNotEmpty()){
+                                        mediaName = downloadProperties.mediaTitle
+                                    }
+                                    downloadPercentage = downloadProperties.downloadPercentageCompleted
+                                    println("Download Percentage: ${downloadPercentage}%")
                                 }
+
                             }
                         }
 
                         // isDownloading will be true at this point if the user already pressed the START button
-                        if(isDownloading){
+                        else {
+                            downloadPercentage = "0"
+                            downloadJob?.cancelChildren()
+                            mediaName = ""
                             downloadProcess?.let { process ->
                                 downloadUtil.stopDownload(process)
 //                                downloadUtil.deleteUnfinishedDownloadedFile(
 //                                    "/Users/ife/Documents/mediaDownloader"
 //                                )
                                 downloadProcess = null
+                                isDownloading = false
                             }
                         }
                     }

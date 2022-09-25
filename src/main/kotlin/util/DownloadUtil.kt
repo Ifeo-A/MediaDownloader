@@ -10,10 +10,15 @@ import java.io.File
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-class DownloadUtil {
+object DownloadUtil {
 
     suspend fun startDownload(commandUtil: CommandUtil): Flow<DownloadProperties> = channelFlow {
+
         val downloadFolder = "/Users/ife/Documents/mediaDownloader"
+        val youtubeDlCommand =
+            ProcessBuilder("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=bhrumYeZvjs")
+        youtubeDlCommand.directory(File(downloadFolder))
+
         coroutineScope {
             launch(Dispatchers.IO) {
                 //youtube-dl --format "mp4" "https://www.youtube.com/watch?v=bhrumYeZvjs"
@@ -22,24 +27,20 @@ class DownloadUtil {
 //            pwdCommand.redirectOutput(File("${downloadFolder}/output.log"))
 //            val pwdCommandProcess = pwdCommand.start()
 
-
-                val youtubeDlCommand =
-                    ProcessBuilder("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=bhrumYeZvjs")
-                youtubeDlCommand.directory(File(downloadFolder))
                 val youtubeDlCommandProcess = youtubeDlCommand.start()
 
                 commandUtil.getOutputFromCommand(youtubeDlCommandProcess).collect { outputFromCommand ->
                     if (outputFromCommand.contains("[download]")) {
                         send(
                             DownloadProperties(
-                                mediaName = findMediaName(outputFromCommand),
+                                mediaTitle = findMediaName(outputFromCommand),
                                 downloadPercentageCompleted = findDownloadProgress(outputFromCommand),
                                 process = youtubeDlCommandProcess
                             )
                         )
                     }
                     if (outputFromCommand.contains("[download] 100%")) {
-                        println("DOWNLOAD COMPLETE")
+                        // Download complete
                     }
                 }
             }
@@ -84,20 +85,20 @@ class DownloadUtil {
         // Given the string "[download] Destination: MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
         // This will match "MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
         val regexPatternVideoName = "(?<=] Destination: )(.*)"
-        val videoNamePattern: Pattern = Pattern.compile(regexPatternVideoName)
-        val videoNameMatcher: Matcher = videoNamePattern.matcher(str)
+        val mediaNamePattern: Pattern = Pattern.compile(regexPatternVideoName)
+        val mediaNameMatcher: Matcher = mediaNamePattern.matcher(str)
 
-        val videoName: String =
-            if (videoNameMatcher.find()) {
-                videoNameMatcher.group(0)
+        val mediaTitle: String =
+            if (mediaNameMatcher.find()) {
+                mediaNameMatcher.group(0)
             } else {
                 // No match
                 ""
             }
 
-        println("videoName: $videoName")
+        println("Media title: $mediaTitle")
 
-        return videoName
+        return mediaTitle
     }
 
 }

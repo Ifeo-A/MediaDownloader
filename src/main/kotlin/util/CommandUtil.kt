@@ -8,7 +8,7 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 
-class CommandUtil {
+object CommandUtil {
 
     fun getOutputFromCommand(process: Process): Flow<String> = flow {
 
@@ -17,9 +17,12 @@ class CommandUtil {
 
         try {
             while (true) {
-                outputFromCommand = stdInput.readLine() ?: break
-                println("outputFromCommand: $outputFromCommand")
-                emit(outputFromCommand)
+                try {
+                    outputFromCommand = stdInput.readLine() ?: break
+                    emit(outputFromCommand)
+                } catch (e: IOException){
+                    break
+                }
             }
             process.destroy()
         } catch (e: IOException) {
