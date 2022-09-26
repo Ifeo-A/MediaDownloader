@@ -1,12 +1,13 @@
-import Constants.AUDIO_FORMAT
+import Constants.AUDIO_MEDIA_FORMAT
 import Constants.AUDIO_OPTIONS
 import Constants.Buttons.START
 import Constants.Buttons.STOP
 import Constants.DOWNLOAD_COMPLETE
+import Constants.MEDIA_FORMAT_OPTIONS
 import Constants.INVALID_FILE_PATH
 import Constants.SAVE_LOCATION
 import Constants.URL_PLACEHOLDER
-import Constants.VIDEO_FORMAT
+import Constants.VIDEO_MEDIA_FORMAT
 import Constants.VIDEO_OPTIONS
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
@@ -14,14 +15,12 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
 import components.DropDown
 import components.FilePicker
 import kotlinx.coroutines.launch
-import java.awt.event.WindowEvent
-import java.awt.event.WindowStateListener
 
 
 @Composable
@@ -29,6 +28,7 @@ import java.awt.event.WindowStateListener
 fun App() {
     val viewModel = ViewModel()
     var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
+    var selectedMediaFormat by remember { mutableStateOf("") }
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
@@ -67,19 +67,34 @@ fun App() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 DropDown(
-                    dropDownTitle = AUDIO_FORMAT,
-                    dropDownOptions = AUDIO_OPTIONS,
+                    dropDownTitle = "Format",
+                    dropDownOptions = MEDIA_FORMAT_OPTIONS,
                     onOptionSelected = {
                         println(it)
+                        selectedMediaFormat = it
                     }
                 )
-                DropDown(
-                    dropDownTitle = VIDEO_FORMAT,
-                    dropDownOptions = VIDEO_OPTIONS,
-                    onOptionSelected = {
-                        println(it)
+
+                when(selectedMediaFormat){
+                    VIDEO_MEDIA_FORMAT -> {
+                        DropDown(
+                            dropDownTitle = VIDEO_MEDIA_FORMAT,
+                            dropDownOptions = VIDEO_OPTIONS,
+                            onOptionSelected = {
+                                println(it)
+                            }
+                        )
                     }
-                )
+                    AUDIO_MEDIA_FORMAT -> {
+                        DropDown(
+                            dropDownTitle = AUDIO_MEDIA_FORMAT,
+                            dropDownOptions = AUDIO_OPTIONS,
+                            onOptionSelected = {
+                                println(it)
+                            }
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.padding(vertical = 30.dp))
@@ -170,7 +185,11 @@ fun App() {
                 }
 
                 if(mediaName.isNotEmpty()){
-                    Text(text = "Downloading: $mediaName")
+                    Text(text = if(downloadPercentage == "100"){
+                        "Downloaded: $mediaName"
+                    } else {
+                        "Downloading: $mediaName"
+                    })
                 }
                 Text(text = if (downloadPercentage == "100") DOWNLOAD_COMPLETE else "${downloadPercentage}%")
 
