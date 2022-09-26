@@ -51,6 +51,7 @@ fun App() {
                 TextField(
                     modifier = Modifier.weight(1f),
                     value = url,
+                    singleLine = true,
                     onValueChange = { url = it },
                     placeholder = {
                         Text(URL_PLACEHOLDER)
