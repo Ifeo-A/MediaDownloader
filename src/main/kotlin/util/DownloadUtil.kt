@@ -1,6 +1,6 @@
 package util
 
-import DownloadProperties
+import data.DownloadProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,6 @@ object DownloadUtil {
 
         coroutineScope {
             launch(Dispatchers.IO) {
-                //youtube-dl --format "mp4" "https://www.youtube.com/watch?v=bhrumYeZvjs"
 //            val pwdCommand = ProcessBuilder("pwd")
 //            pwdCommand.directory(File(downloadFolder))
 //            pwdCommand.redirectOutput(File("${downloadFolder}/output.log"))
@@ -80,7 +79,7 @@ object DownloadUtil {
         return percentValue.replace("%", "")
     }
 
-    fun findMediaName(str: String): String {
+    private fun findMediaName(str: String): String {
         // Pattern to find the line that contains the string [download]
         // Given the string "[download] Destination: MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
         // This will match "MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"

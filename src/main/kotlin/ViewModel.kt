@@ -1,3 +1,5 @@
+import data.CommandOptions
+import data.DownloadProperties
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -14,17 +16,30 @@ class ViewModel() {
     var downloadProperties: Flow<DownloadProperties> = _downloadProperties.receiveAsFlow()
 
     fun startDownload(commandOptions: CommandOptions) {
-        if(commandOptions.url.isNotEmpty()){
+        if (commandOptions.url.isNotEmpty()) {
             downloadJob = myCoroutineScope.launch {
                 println("Starting download")
+                println("data.CommandOptions: $commandOptions")
+
+                println("BUILT COMMAND")
+                println("------------------------------------------------------")
+                commandOptions.builtCommand().toTypedArray().mapIndexed { index, string ->
+                    if(index == commandOptions.builtCommand().size -1){
+                        print("\"$string\"")
+                        println()
+                    } else {
+                        print("\"$string\", ")
+                    }
+                }
+                println("------------------------------------------------------")
+
                 DownloadUtil.startDownload(
-                    downloadFolder = "/Users/ife/Documents/mediaDownloader",
-                    builtCommand = mutableListOf("youtube-dl", "--format", commandOptions.format, commandOptions.url)
-//                builtCommand = mutableListOf("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=wPfn8GrR3ic&t=20s")
+                    downloadFolder = commandOptions.downloadFolder,
+                    builtCommand = mutableListOf(*commandOptions.builtCommand().toTypedArray())
                 ).collect { downloadProperties ->
                     _downloadProperties.send(downloadProperties)
 
-                    if(downloadProcess == null){
+                    if (downloadProcess == null) {
                         downloadProcess = downloadProperties.process
                     }
                 }
@@ -34,7 +49,7 @@ class ViewModel() {
         }
     }
 
-    fun stopDownload(){
+    fun stopDownload() {
         downloadProcess?.let { DownloadUtil.stopDownload(it) }
         downloadProcess?.destroy() ?: return
         downloadJob?.cancelChildren() ?: return

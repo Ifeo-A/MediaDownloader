@@ -1,14 +1,3 @@
-import Constants.AUDIO_MEDIA_FORMAT
-import Constants.AUDIO_OPTIONS
-import Constants.Buttons.START
-import Constants.Buttons.STOP
-import Constants.DOWNLOAD_COMPLETE
-import Constants.MEDIA_FORMAT_OPTIONS
-import Constants.INVALID_FILE_PATH
-import Constants.SAVE_LOCATION
-import Constants.URL_PLACEHOLDER
-import Constants.VIDEO_MEDIA_FORMAT
-import Constants.VIDEO_OPTIONS
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -20,7 +9,18 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import components.DropDown
 import components.FilePicker
+import data.CommandOptions
 import kotlinx.coroutines.launch
+import util.Constants.AUDIO_FORMAT_OPTIONS
+import util.Constants.AUDIO_MEDIA_FORMAT
+import util.Constants.Buttons.START
+import util.Constants.Buttons.STOP
+import util.Constants.DOWNLOAD_COMPLETE
+import util.Constants.MEDIA_FORMAT_OPTIONS
+import util.Constants.SAVE_LOCATION
+import util.Constants.URL_PLACEHOLDER
+import util.Constants.VIDEO_FORMAT_OPTIONS
+import util.Constants.VIDEO_MEDIA_FORMAT
 
 
 @Composable
@@ -29,14 +29,15 @@ fun App() {
     val viewModel = ViewModel()
 //    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
     var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=NRpNUi5e7Os") }
-    var selectedMediaFormat by remember { mutableStateOf(VIDEO_MEDIA_FORMAT) }
+    var selectedMediaFormat by remember { mutableStateOf(VIDEO_MEDIA_FORMAT) } // Video or Audio
+    var selectedMediaFileExtension by remember { mutableStateOf(VIDEO_FORMAT_OPTIONS.first()) } //"mp4
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
-    var downloadButtonText by remember { mutableStateOf("START") }
+    var downloadButtonText by remember { mutableStateOf(START) }
     var isDownloading by remember { mutableStateOf(false) }
     var mediaName: String by remember { mutableStateOf("") }
-    var filePath: String? by remember { mutableStateOf("") }
+    var filePath: String? by remember { mutableStateOf(null) }
     val myCoroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
@@ -79,21 +80,27 @@ fun App() {
 
                 when (selectedMediaFormat) {
                     VIDEO_MEDIA_FORMAT -> {
+                        selectedMediaFileExtension = VIDEO_FORMAT_OPTIONS.first()
                         DropDown(
                             dropDownTitle = VIDEO_MEDIA_FORMAT,
-                            dropDownOptions = VIDEO_OPTIONS,
-                            onOptionSelected = {
-                                println(it)
-                            }
+                            dropDownOptions = VIDEO_FORMAT_OPTIONS,
+                            onOptionSelected = { fileExtension ->
+                                println(fileExtension)
+                                selectedMediaFileExtension = fileExtension.lowercase()
+                            },
+                            selectedDefault = VIDEO_FORMAT_OPTIONS.first()
                         )
                     }
                     AUDIO_MEDIA_FORMAT -> {
+                        selectedMediaFileExtension = AUDIO_FORMAT_OPTIONS.first()
                         DropDown(
                             dropDownTitle = AUDIO_MEDIA_FORMAT,
-                            dropDownOptions = AUDIO_OPTIONS,
-                            onOptionSelected = {
-                                println(it)
-                            }
+                            dropDownOptions = AUDIO_FORMAT_OPTIONS,
+                            onOptionSelected = { fileExtension ->
+                                println(fileExtension)
+                                selectedMediaFileExtension = fileExtension.lowercase()
+                            },
+                            selectedDefault = AUDIO_FORMAT_OPTIONS.first()
                         )
                     }
                 }
@@ -132,18 +139,21 @@ fun App() {
                 ) {
                     Text(SAVE_LOCATION)
                 }
-                Text(text = filePath ?: INVALID_FILE_PATH)
+                Text(text = filePath ?: "")
 
                 Divider(Modifier.padding(vertical = 30.dp))
+
 
                 //Start/STOP button - start download
                 Button(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = {
                         if (!isDownloading) {
+
                             val commandOptions = CommandOptions(
                                 url = downloadUrl,
-                                format = "mp4"
+                                downloadFolder = filePath ?: "/Users/ife/Documents/mediaDownloader",//"/Users/ife/Documents/mediaDownloader",
+                                format = selectedMediaFileExtension.lowercase()
                             )
                             viewModel.startDownload(commandOptions)
                             downloadPercentage = "0"

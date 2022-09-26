@@ -24,7 +24,7 @@ fun FilePicker(
                     super.setVisible(value)
                     if (value) {
                         try {
-                            fileSelected = "${directory}${file}"
+                            fileSelected = directory
                             if(!file.contains("null") && fileSelected.isNotEmpty()){
                                 onCloseRequest(fileSelected)
                             } else {
