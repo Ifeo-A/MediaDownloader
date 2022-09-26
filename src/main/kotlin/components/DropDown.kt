@@ -19,10 +19,11 @@ fun DropDown(
     modifier: Modifier = Modifier,
     dropDownTitle: String = "",
     dropDownOptions: List<String>,
+    selectedDefault: String = "",
     onOptionSelected: (optionText: String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
+    var selectedText by remember { mutableStateOf(selectedDefault) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally

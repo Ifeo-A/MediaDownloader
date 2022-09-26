@@ -29,7 +29,7 @@ fun App() {
     val viewModel = ViewModel()
 //    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
     var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=NRpNUi5e7Os") }
-    var selectedMediaFormat by remember { mutableStateOf("") }
+    var selectedMediaFormat by remember { mutableStateOf(VIDEO_MEDIA_FORMAT) }
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
@@ -68,12 +68,13 @@ fun App() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 DropDown(
-                    dropDownTitle = "Format",
+                    dropDownTitle = "Media Format",
                     dropDownOptions = MEDIA_FORMAT_OPTIONS,
                     onOptionSelected = {
                         println(it)
                         selectedMediaFormat = it
-                    }
+                    },
+                    selectedDefault = selectedMediaFormat
                 )
 
                 when (selectedMediaFormat) {
