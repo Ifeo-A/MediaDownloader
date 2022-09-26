@@ -13,20 +13,24 @@ class ViewModel() {
     private var _downloadProperties: Channel<DownloadProperties> = Channel()
     var downloadProperties: Flow<DownloadProperties> = _downloadProperties.receiveAsFlow()
 
-    fun startDownload() {
-        downloadJob = myCoroutineScope.launch {
-            println("Starting download")
-            DownloadUtil.startDownload(
-                downloadFolder = "/Users/ife/Documents/mediaDownloader",
-                builtCommand = mutableListOf("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=bhrumYeZvjs")
+    fun startDownload(commandOptions: CommandOptions) {
+        if(commandOptions.url.isNotEmpty()){
+            downloadJob = myCoroutineScope.launch {
+                println("Starting download")
+                DownloadUtil.startDownload(
+                    downloadFolder = "/Users/ife/Documents/mediaDownloader",
+                    builtCommand = mutableListOf("youtube-dl", "--format", commandOptions.format, commandOptions.url)
 //                builtCommand = mutableListOf("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=wPfn8GrR3ic&t=20s")
-            ).collect { downloadProperties ->
-                _downloadProperties.send(downloadProperties)
+                ).collect { downloadProperties ->
+                    _downloadProperties.send(downloadProperties)
 
-                if(downloadProcess == null){
-                    downloadProcess = downloadProperties.process
+                    if(downloadProcess == null){
+                        downloadProcess = downloadProperties.process
+                    }
                 }
             }
+        } else {
+            println("Nothing to download")
         }
     }
 

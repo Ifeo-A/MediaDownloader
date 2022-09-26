@@ -14,18 +14,21 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
+import androidx.compose.ui.window.*
 import components.DropDown
 import components.FilePicker
 import kotlinx.coroutines.launch
+import java.awt.event.WindowEvent
+import java.awt.event.WindowStateListener
+
 
 @Composable
 @Preview
 fun App() {
     val viewModel = ViewModel()
-    var url by remember { mutableStateOf("") }
+    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
@@ -48,9 +51,9 @@ fun App() {
                 // URL bar
                 TextField(
                     modifier = Modifier.weight(1f),
-                    value = url,
+                    value = downloadUrl,
                     singleLine = true,
-                    onValueChange = { url = it },
+                    onValueChange = { downloadUrl = it },
                     placeholder = {
                         Text(URL_PLACEHOLDER)
                     }
@@ -120,11 +123,12 @@ fun App() {
                 Button(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = {
-                        downloadButtonText = if (downloadButtonText == START) STOP else START
-
                         if (!isDownloading) {
-                            viewModel.startDownload()
-
+                            val commandOptions = CommandOptions(
+                                url = downloadUrl,
+                                format = "mp4"
+                            )
+                            viewModel.startDownload(commandOptions)
                             downloadPercentage = "0"
                             isDownloading = true
 
@@ -138,7 +142,9 @@ fun App() {
                                         isDownloading = false
                                         downloadButtonText = START
                                     }
-
+                                    if(downloadProperties.process.isAlive){
+                                        downloadButtonText = STOP
+                                    }
                                     if(downloadProperties.mediaTitle.isNotEmpty()){
                                         mediaName = downloadProperties.mediaTitle
                                     }
@@ -153,6 +159,7 @@ fun App() {
                         else {
                             viewModel.stopDownload()
 
+                            downloadButtonText = START
                             downloadPercentage = "0"
                             mediaName = ""
                             isDownloading = false
@@ -173,7 +180,10 @@ fun App() {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        title = "Media Downloader",
+        onCloseRequest = ::exitApplication
+    ) {
         App()
     }
 }
