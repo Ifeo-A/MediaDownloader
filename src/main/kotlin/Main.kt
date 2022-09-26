@@ -145,8 +145,7 @@ fun App() {
                                         downloadButtonText = START
                                     }
 
-                                    if(downloadProcess == null && downloadProperties.process.isAlive){
-                                        println("Assigning new process")
+                                    if(downloadProcess == null){
                                         downloadProcess = downloadProperties.process
                                     }
 
@@ -155,6 +154,7 @@ fun App() {
                                     }
                                     downloadPercentage = downloadProperties.downloadPercentageCompleted
                                     println("Download Percentage: ${downloadPercentage}%")
+                                    println("Media title: ${downloadProperties.mediaTitle}")
                                 }
 
                             }

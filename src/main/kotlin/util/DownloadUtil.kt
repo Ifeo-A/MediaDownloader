@@ -96,8 +96,6 @@ object DownloadUtil {
                 ""
             }
 
-        println("Media title: $mediaTitle")
-
         return mediaTitle
     }
 
