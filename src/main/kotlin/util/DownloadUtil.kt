@@ -12,11 +12,11 @@ import java.util.regex.Pattern
 
 object DownloadUtil {
 
-    suspend fun startDownload(commandUtil: CommandUtil): Flow<DownloadProperties> = channelFlow {
-
-        val downloadFolder = "/Users/ife/Documents/mediaDownloader"
-        val youtubeDlCommand =
-            ProcessBuilder("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=bhrumYeZvjs")
+    suspend fun startDownload(
+        downloadFolder: String,
+        builtCommand: List<String>
+    ): Flow<DownloadProperties> = channelFlow {
+        val youtubeDlCommand = ProcessBuilder(builtCommand)
         youtubeDlCommand.directory(File(downloadFolder))
 
         coroutineScope {
@@ -29,7 +29,7 @@ object DownloadUtil {
 
                 val youtubeDlCommandProcess = youtubeDlCommand.start()
 
-                commandUtil.getOutputFromCommand(youtubeDlCommandProcess).collect { outputFromCommand ->
+                CommandUtil.getOutputFromCommand(youtubeDlCommandProcess).collect { outputFromCommand ->
                     if (outputFromCommand.contains("[download]")) {
                         send(
                             DownloadProperties(
@@ -80,7 +80,7 @@ object DownloadUtil {
         return percentValue.replace("%", "")
     }
 
-    private fun findMediaName(str: String): String {
+    fun findMediaName(str: String): String {
         // Pattern to find the line that contains the string [download]
         // Given the string "[download] Destination: MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
         // This will match "MEMES OF THE DAY - OFF WITH THEIR MEMES-bhrumYeZvjs.mp4"
