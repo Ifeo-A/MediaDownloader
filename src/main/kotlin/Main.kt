@@ -27,7 +27,8 @@ import kotlinx.coroutines.launch
 @Preview
 fun App() {
     val viewModel = ViewModel()
-    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
+//    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
+    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=NRpNUi5e7Os") }
     var selectedMediaFormat by remember { mutableStateOf("") }
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
@@ -75,7 +76,7 @@ fun App() {
                     }
                 )
 
-                when(selectedMediaFormat){
+                when (selectedMediaFormat) {
                     VIDEO_MEDIA_FORMAT -> {
                         DropDown(
                             dropDownTitle = VIDEO_MEDIA_FORMAT,
@@ -151,21 +152,24 @@ fun App() {
                             //  already exists and if it does then not to start download
 
                             myCoroutineScope.launch {
-                                viewModel.downloadProperties.collect{ downloadProperties ->
-                                    if (downloadProperties.downloadPercentageCompleted == "100") {
+                                viewModel.downloadProperties.collect { downloadProperties ->
+                                    if (isDownloadComplete(downloadProperties.downloadPercentageCompleted)) {
                                         //Download is complete
                                         isDownloading = false
-                                        downloadButtonText = START
                                     }
-                                    if(downloadProperties.process.isAlive){
-                                        downloadButtonText = STOP
-                                    }
-                                    if(downloadProperties.mediaTitle.isNotEmpty()){
+
+                                    if (downloadProperties.mediaTitle.isNotEmpty()) {
                                         mediaName = downloadProperties.mediaTitle
                                     }
+
+                                    downloadButtonText =
+                                        if (isDownloadComplete(downloadProperties.downloadPercentageCompleted)) {
+                                            START
+                                        } else {
+                                            STOP
+                                        }
                                     downloadPercentage = downloadProperties.downloadPercentageCompleted
                                     println("Download Percentage: ${downloadPercentage}%")
-                                    println("Media title: ${downloadProperties.mediaTitle}")
                                 }
                             }
                         }
@@ -184,19 +188,30 @@ fun App() {
                     Text(text = downloadButtonText)
                 }
 
-                if(mediaName.isNotEmpty()){
-                    Text(text = if(downloadPercentage == "100"){
-                        "Downloaded: $mediaName"
-                    } else {
-                        "Downloading: $mediaName"
-                    })
+                if (mediaName.isNotEmpty()) {
+                    Text(
+                        text = if (isDownloadComplete(downloadPercentage)) {
+                            "Downloaded: $mediaName"
+                        } else {
+                            "Downloading: $mediaName"
+                        }
+                    )
                 }
-                Text(text = if (downloadPercentage == "100") DOWNLOAD_COMPLETE else "${downloadPercentage}%")
+                if (isDownloadComplete(downloadPercentage)) {
+                    downloadButtonText = START
+                }
+                Text(
+                    text = if (isDownloadComplete(downloadPercentage)) {
+                        DOWNLOAD_COMPLETE
+                    } else "${downloadPercentage}%"
+                )
 
             }
         }
     }
 }
+
+fun isDownloadComplete(downloadPercentage: String): Boolean = downloadPercentage == "100"
 
 fun main() = application {
     Window(
