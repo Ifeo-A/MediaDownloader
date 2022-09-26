@@ -1,18 +1,11 @@
-import androidx.compose.runtime.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import util.CommandUtil
-import util.DownloadUtil
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import java.io.File
+import util.DownloadUtil
 
 
-class ViewModel(
-    private val downloadUtil: DownloadUtil
-) {
+class ViewModel() {
     private var downloadJob: Job? = null
     private val myCoroutineScope = CoroutineScope(Dispatchers.IO)
     private var downloadProcess: Process? = null
@@ -23,7 +16,7 @@ class ViewModel(
     fun startDownload() {
         downloadJob = myCoroutineScope.launch {
             println("Starting download")
-            downloadUtil.startDownload(
+            DownloadUtil.startDownload(
                 downloadFolder = "/Users/ife/Documents/mediaDownloader",
                 builtCommand = mutableListOf("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=bhrumYeZvjs")
 //                builtCommand = mutableListOf("youtube-dl", "--format", "mp4", "https://www.youtube.com/watch?v=wPfn8GrR3ic&t=20s")
@@ -38,7 +31,7 @@ class ViewModel(
     }
 
     fun stopDownload(){
-        downloadProcess?.let { downloadUtil.stopDownload(it) }
+        downloadProcess?.let { DownloadUtil.stopDownload(it) }
         downloadProcess?.destroy() ?: return
         downloadJob?.cancelChildren() ?: return
 

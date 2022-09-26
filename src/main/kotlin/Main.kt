@@ -20,13 +20,11 @@ import androidx.compose.ui.window.application
 import components.DropDown
 import components.FilePicker
 import kotlinx.coroutines.launch
-import util.CommandUtil
-import util.DownloadUtil
 
 @Composable
 @Preview
 fun App() {
-    val viewModel = ViewModel(DownloadUtil)
+    val viewModel = ViewModel()
     var url by remember { mutableStateOf("") }
     var isFileChooserOpen by remember { mutableStateOf(false) }
     var fileChooserButtonClicked by remember { mutableStateOf(false) }
