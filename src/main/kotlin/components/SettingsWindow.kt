@@ -24,10 +24,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
-import theme.orange
-import theme.purple
-import theme.red
-import theme.yellow
+import theme.*
 import util.Constants.USER_HOME
 import util.SettingsUtil
 import util.SettingsUtil.saveSettings
@@ -76,7 +73,7 @@ fun SettingsWindow(
             modifier = Modifier
                 .background(
                     brush = Brush
-                        .linearGradient(listOf(red, purple))
+                        .linearGradient(listOf(lightRed, lightPurple))
                 )
                 .padding(horizontal = 32.dp, vertical = 24.dp)
 
