@@ -1,27 +1,48 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import components.DropDown
 import components.FilePicker
+import components.SettingsOptions
+import components.SettingsWindow
 import data.CommandOptions
 import kotlinx.coroutines.launch
+import theme.*
 import util.Constants.AUDIO_FORMAT_OPTIONS
 import util.Constants.AUDIO_MEDIA_FORMAT
 import util.Constants.Buttons.START
 import util.Constants.Buttons.STOP
 import util.Constants.DOWNLOAD_COMPLETE
+import util.Constants.FILE
+import util.Constants.MAIN_WINDOW_TITLE
+import util.Constants.MEDIA_FORMAT
 import util.Constants.MEDIA_FORMAT_OPTIONS
-import util.Constants.SAVE_LOCATION
+import util.Constants.SETTINGS
+import util.Constants.SettingsWindow.SAVE_LOCATION
 import util.Constants.URL_PLACEHOLDER
 import util.Constants.USER_HOME
 import util.Constants.VIDEO_FORMAT_OPTIONS
 import util.Constants.VIDEO_MEDIA_FORMAT
+import util.DownloadUtil.isDownloadComplete
+import util.SettingsUtil
+import java.io.File
 
 
 @Composable
@@ -38,28 +59,48 @@ fun App() {
     var downloadButtonText by remember { mutableStateOf(START) }
     var isDownloading by remember { mutableStateOf(false) }
     var mediaName: String by remember { mutableStateOf("") }
-    var filePath: String? by remember { mutableStateOf(null) }
+    var downloadLocation: String? by remember { mutableStateOf(SettingsUtil.readDownloadLocation()) }
     val myCoroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .background(
+                    brush = Brush
+                        .linearGradient(listOf(red, purple))
+                )
                 .padding(horizontal = 32.dp, vertical = 24.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
             ) {
                 // URL bar
                 TextField(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .border(
+                            border = BorderStroke(
+                                width = 1.dp,
+                                brush = Brush.linearGradient(listOf(orange, yellow))
+                            ),
+                            shape = CircleShape
+                        ),
                     value = downloadUrl,
                     singleLine = true,
                     onValueChange = { downloadUrl = it },
                     placeholder = {
                         Text(URL_PLACEHOLDER)
-                    }
+                    },
+                    shape = CircleShape,
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.White,
+                        disabledTextColor = Color.Transparent,
+                        backgroundColor = transparentWhite,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        cursorColor = Color.White
+                    )
                 )
             }
 
@@ -70,7 +111,7 @@ fun App() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 DropDown(
-                    dropDownTitle = "Media Format",
+                    dropDownTitle = MEDIA_FORMAT,
                     dropDownOptions = MEDIA_FORMAT_OPTIONS,
                     onOptionSelected = {
                         println(it)
@@ -119,7 +160,7 @@ fun App() {
                         onCloseRequest = { _filePath ->
                             isFileChooserOpen = false
                             fileChooserButtonClicked = false
-                            filePath = _filePath
+                            downloadLocation = _filePath
                             println("File: $_filePath")
                         },
                         onError = { errorMessage ->
@@ -140,10 +181,9 @@ fun App() {
                 ) {
                     Text(SAVE_LOCATION)
                 }
-                Text(text = filePath ?: "")
+                Text(text = downloadLocation ?: "")
 
                 Divider(Modifier.padding(vertical = 30.dp))
-
 
                 //Start/STOP button - start download
                 Button(
@@ -153,7 +193,9 @@ fun App() {
 
                             val commandOptions = CommandOptions(
                                 url = downloadUrl,
-                                downloadFolder = filePath ?: "$USER_HOME/Documents/mediaDownloader",//"/Users/ife/Documents/mediaDownloader",
+                                //"/Users/ife/Documents/mediaDownloader"
+                                downloadFolder = downloadLocation
+                                    ?: "$USER_HOME/Downloads/mediaDownloader",
                                 format = selectedMediaFileExtension.lowercase()
                             )
                             viewModel.startDownload(commandOptions)
@@ -223,13 +265,59 @@ fun App() {
     }
 }
 
-fun isDownloadComplete(downloadPercentage: String): Boolean = downloadPercentage == "100"
+fun readSettingsFile(): SettingsOptions? {
+    // look for mediaDownloader folder in user downlod folder
+    //look for settings file in users download folder
+    var settingsOptions: SettingsOptions? = null
+//
+//    val defaultSettingsFile = File("${USER_HOME}/Downloads/mediaDownloader.settings.json")
+//    if(!defaultSettingsFile.exists()){
+//        if(defaultSettingsFile.createNewFile()){
+//            settingsOptions = SettingsUtil.readSettingsFile(defaultSettingsFile)
+//        }
+//    }
 
+    return settingsOptions
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
+    var shouldOpenSettingsWindow by remember { mutableStateOf(true) }
+
+    SettingsUtil.initDefaultDirectories()
+
     Window(
-        title = "Media Downloader",
-        onCloseRequest = ::exitApplication
+        title = MAIN_WINDOW_TITLE,
+        onCloseRequest = ::exitApplication,
+        state = rememberWindowState(width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
     ) {
+
+        MenuBar {
+            Menu(FILE, mnemonic = ',') {
+                Item(
+                    SETTINGS,
+                    onClick = {
+                        shouldOpenSettingsWindow = true
+                    },
+                    shortcut = KeyShortcut(Key.Settings, ctrl = true)
+                )
+            }
+        }
+
+        if (shouldOpenSettingsWindow) {
+            SettingsWindow(
+                windowClose = {
+                    shouldOpenSettingsWindow = false
+                },
+                downloadChooserButtonClicked = {
+
+                },
+                downloadDirectoryChanged = { newDownloadDirectory ->
+                    println("Set new download directory to: $newDownloadDirectory")
+                }
+            )
+        }
+
         App()
     }
 }

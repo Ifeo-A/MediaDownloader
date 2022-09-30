@@ -2,6 +2,7 @@ package components
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.AwtWindow
+import util.Constants.USER_HOME
 import java.awt.FileDialog
 import java.awt.Frame
 
@@ -13,32 +14,36 @@ import java.awt.Frame
 fun FilePicker(
     parent: Frame? = null,
     onCloseRequest: (result: String?) -> Unit,
-    onError: (errorMessage: String? )->Unit
+    onError: (errorMessage: String?) -> Unit
 ) {
     var fileSelected by remember { mutableStateOf("") }
 
-    return AwtWindow(
-        create = {
-            object : FileDialog(parent, "Choose a folder", SAVE) {
-                override fun setVisible(value: Boolean) {
-                    super.setVisible(value)
-                    if (value) {
-                        try {
-                            fileSelected = directory
-                            if(!file.contains("null") && fileSelected.isNotEmpty()){
-                                onCloseRequest(fileSelected)
-                            } else {
-                                onCloseRequest("Invalid path")
-                            }
-
-                        } catch (e: NullPointerException){
-                            onError(e.message)
-                        }
-
+    val fileDialog = object : FileDialog(
+        parent,
+        "Choose a folder",
+        SAVE
+    ) {
+        override fun setVisible(value: Boolean) {
+            super.setVisible(value)
+            if (value) {
+                try {
+                    fileSelected = directory
+                    if (!file.contains("null") && fileSelected.isNotEmpty()) {
+                        onCloseRequest(fileSelected)
+                        println("Selected directory: ${directory}")
+                    } else {
+                        onCloseRequest("Invalid path")
                     }
+
+                } catch (e: NullPointerException) {
+                    onError(e.message)
                 }
             }
-        },
+        }
+    }
+
+    return AwtWindow(
+        create = { fileDialog },
         dispose = FileDialog::dispose
     )
 }

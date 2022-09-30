@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("org.jetbrains.compose") version "1.1.0"
+    id("org.jetbrains.compose") version "1.1.1"
 }
 
 group = "me.ife"
@@ -20,6 +20,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation("com.sealwu:kscript-tools:1.0.21")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.1.1")
+    implementation("com.google.code.gson:gson:2.9.1")
 }
 
 tasks.withType<KotlinCompile> {

@@ -55,6 +55,8 @@ object DownloadUtil {
         file.delete()
     }
 
+    fun isDownloadComplete(downloadPercentage: String): Boolean = downloadPercentage == "100"
+
     /**
      * Returns string value representing the download progress
      *

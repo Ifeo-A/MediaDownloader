@@ -1,0 +1,8 @@
+TODO
+
+
+Add setting to allow user to choose separate folder location for video and audio
+Add checkbox that says "Use this location for audio and video downloads?"
+If the box is not checked then show two fields that lets the user choose the download location for audio and video
+
+Customize title bar e.g custom close and minimize button
