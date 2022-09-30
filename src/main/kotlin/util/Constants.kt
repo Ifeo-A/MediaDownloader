@@ -7,6 +7,9 @@ object Constants {
         const val STOP = "STOP"
     }
 
+    val OS_NAME = System.getProperty("os.name").lowercase()
+    val USER_HOME = System.getProperty("user.home").lowercase()
+
     const val SAVE_LOCATION = "Save Location"
     const val INVALID_FILE_PATH = "Invalid path"
     const val URL_PLACEHOLDER = "Paste URL here"

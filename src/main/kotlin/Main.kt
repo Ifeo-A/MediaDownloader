@@ -19,6 +19,7 @@ import util.Constants.DOWNLOAD_COMPLETE
 import util.Constants.MEDIA_FORMAT_OPTIONS
 import util.Constants.SAVE_LOCATION
 import util.Constants.URL_PLACEHOLDER
+import util.Constants.USER_HOME
 import util.Constants.VIDEO_FORMAT_OPTIONS
 import util.Constants.VIDEO_MEDIA_FORMAT
 
@@ -152,7 +153,7 @@ fun App() {
 
                             val commandOptions = CommandOptions(
                                 url = downloadUrl,
-                                downloadFolder = filePath ?: "/Users/ife/Documents/mediaDownloader",//"/Users/ife/Documents/mediaDownloader",
+                                downloadFolder = filePath ?: "$USER_HOME/Documents/mediaDownloader",//"/Users/ife/Documents/mediaDownloader",
                                 format = selectedMediaFileExtension.lowercase()
                             )
                             viewModel.startDownload(commandOptions)

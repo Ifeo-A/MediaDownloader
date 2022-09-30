@@ -55,7 +55,7 @@ class ViewModel() {
         downloadJob?.cancelChildren() ?: return
 
 //        downloadUtil.deleteUnfinishedDownloadedFile(
-//            "/Users/ife/Documents/mediaDownloader"
+//            "$USER_HOME/Documents/mediaDownloader"
 //        )
     }
 
