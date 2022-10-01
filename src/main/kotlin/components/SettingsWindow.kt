@@ -25,6 +25,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import theme.*
+import util.Constants.SETTINGS_WINDOW_TITLE
 import util.Constants.USER_HOME
 import util.SettingsUtil
 import util.SettingsUtil.saveSettings
@@ -39,33 +40,11 @@ fun SettingsWindow(
     downloadDirectoryChanged: (filePath: String) -> Unit
 ) {
 
-    var settingsFile by remember { mutableStateOf("${USER_HOME}/Downloads/mediaDownloader") }
-    var settingsFileDirectory by remember { mutableStateOf("${USER_HOME}/Downloads/mediaDownloader") }
-    var downloadDirectory by remember {
-        mutableStateOf(
-            SettingsUtil.readDownloadLocation() ?: "${USER_HOME}/Downloads/mediaDownloader"
-        )
-    }
+    var downloadDirectory by remember { mutableStateOf(SettingsUtil.readDownloadLocation() ?: "") }
     var openFileChooser by remember { mutableStateOf(false) }
 
-//    if( downloadLocation != null){
-//        println("There is a saved download location")
-//        readSetting(savedDownloadLocation.downloadLocation)
-//    } else {
-//        println("There is no saved download location")
-//        downloadLocation = "${USER_HOME}/Downloads"
-//    }
-
-//    saveSettings(
-//        settingsDirectory = File(settingsFileDirectory),
-//        content = SettingsOptions(
-//            settingsFileLocation = "${USER_HOME}/Downloads/mediaDownloader",
-//            downloadLocation = "${USER_HOME}/Downloads/mediaDownloader"
-//        )
-//    )
-
     Window(
-        title = "Settings",
+        title = SETTINGS_WINDOW_TITLE,
         onCloseRequest = { windowClose() },
         state = rememberWindowState(width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
     ) {
@@ -141,8 +120,8 @@ fun SettingsWindow(
                     println("File: $_filePath")
                     _filePath?.let {
                         downloadDirectory = it
-                        downloadDirectoryChanged(it)
                         SettingsUtil.updateDownloadDirectory(downloadDirectory = it)
+                        downloadDirectoryChanged(it)
                     }
                 },
                 onError = { errorMessage ->

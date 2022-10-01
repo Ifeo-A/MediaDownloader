@@ -16,6 +16,7 @@ object Constants {
     }
 
     const val MAIN_WINDOW_TITLE = "Media Downloader"
+    const val SETTINGS_WINDOW_TITLE = "Settings"
     const val SETTINGS = "Settings"
     const val SETTINGS_FILE_NAME = "settings.json"
     const val FILE = "File"

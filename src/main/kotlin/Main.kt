@@ -47,7 +47,8 @@ import java.io.File
 
 @Composable
 @Preview
-fun App() {
+fun App(theDownloadLocation: String) {
+
     val viewModel = ViewModel()
 //    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
     var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=NRpNUi5e7Os") }
@@ -59,7 +60,8 @@ fun App() {
     var downloadButtonText by remember { mutableStateOf(START) }
     var isDownloading by remember { mutableStateOf(false) }
     var mediaName: String by remember { mutableStateOf("") }
-    var downloadLocation: String? by remember { mutableStateOf(SettingsUtil.readDownloadLocation()) }
+//    var downloadLocation: String? by remember { mutableStateOf(SettingsUtil.readDownloadLocation()) }
+    var downloadLocation: String? by remember { mutableStateOf(theDownloadLocation) }
     val myCoroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
@@ -161,6 +163,9 @@ fun App() {
                             isFileChooserOpen = false
                             fileChooserButtonClicked = false
                             downloadLocation = _filePath
+                            _filePath?.let {
+                                SettingsUtil.updateDownloadDirectory(it)
+                            }
                             println("File: $_filePath")
                         },
                         onError = { errorMessage ->
@@ -193,9 +198,7 @@ fun App() {
 
                             val commandOptions = CommandOptions(
                                 url = downloadUrl,
-                                //"/Users/ife/Documents/mediaDownloader"
-                                downloadFolder = downloadLocation
-                                    ?: "$USER_HOME/Downloads/mediaDownloader",
+                                downloadFolder = downloadLocation ?: "$USER_HOME/Downloads/mediaDownloader",
                                 format = selectedMediaFileExtension.lowercase()
                             )
                             viewModel.startDownload(commandOptions)
@@ -283,6 +286,7 @@ fun readSettingsFile(): SettingsOptions? {
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
     var shouldOpenSettingsWindow by remember { mutableStateOf(true) }
+    var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocation() ?: "") }
 
     SettingsUtil.initDefaultDirectories()
 
@@ -309,15 +313,14 @@ fun main() = application {
                 windowClose = {
                     shouldOpenSettingsWindow = false
                 },
-                downloadChooserButtonClicked = {
-
-                },
+                downloadChooserButtonClicked = {},
                 downloadDirectoryChanged = { newDownloadDirectory ->
-                    println("Set new download directory to: $newDownloadDirectory")
+                    downloadLocation = newDownloadDirectory
+                    println("Set new download directory to: $downloadLocation")
                 }
             )
         }
 
-        App()
+        App(downloadLocation)
     }
 }

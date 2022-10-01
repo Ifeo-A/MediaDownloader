@@ -7,31 +7,27 @@ import components.SettingsOptions
 import util.Constants.USER_HOME
 import java.io.File
 import java.io.FileReader
-import java.io.IOException
 
 object SettingsUtil {
 
     fun initDefaultDirectories(){
-        //create download location
-        val defaultDownloadDirectory = File("$USER_HOME/Downloads/mediaDownloader")
+        //create download directory
+        val defaultDownloadDirectory = File("$USER_HOME/Documents/mediaDownloader")
         if(defaultDownloadDirectory.mkdir()){
             println("Default download directory created: $defaultDownloadDirectory")
         } else {
             println("Default download directory not created: $defaultDownloadDirectory")
         }
 
-        //create settings file
+        //create settings file in /Documents/mediaDownloader
         if(defaultDownloadDirectory.exists()){
-            val defaultSettingsDirectory= File("$USER_HOME/Downloads/mediaDownloader/settings")
+            val defaultSettingsDirectory= File("$USER_HOME/Documents/mediaDownloader/settings")
             if(defaultSettingsDirectory.mkdir()){
-                println("Default settings directory created: $defaultSettingsDirectory")
-                val settingsFile = File("${defaultSettingsDirectory}/settings.json")
-                if(settingsFile.createNewFile()){
-                    println("Settings file created: $settingsFile")
-                } else {
-                    println("Settings file not created: $settingsFile")
-                }
-
+                val settingsOptions = SettingsOptions(
+                    downloadLocation = defaultDownloadDirectory.toString(),
+                    settingsFileLocation = defaultSettingsDirectory.toString()
+                )
+                saveSettings(defaultSettingsDirectory, settingsOptions)
             } else {
                 println("Default settings directory not created: $defaultSettingsDirectory")
             }
@@ -40,13 +36,12 @@ object SettingsUtil {
         }
     }
 
-    fun saveSettings(settingsDirectory: File, content: SettingsOptions) {
+    fun saveSettings(settingsDirectory: File, settingsOptions: SettingsOptions) {
 
         val gsonPretty = GsonBuilder().setPrettyPrinting().create()
-        val settingsContentValueJson = gsonPretty.toJson(content, SettingsOptions::class.java)
+        val settingsContentValueJson = gsonPretty.toJson(settingsOptions, SettingsOptions::class.java)
 
-        println("Settings content: ${settingsContentValueJson.toString()}")
-
+        println("Settings content: $settingsContentValueJson")
         println("Settings directory in saveSettings: $settingsDirectory")
 
         if(settingsDirectory.exists()){
@@ -55,30 +50,41 @@ object SettingsUtil {
                 println("Created settings file")
                 settingsFile.writeText(settingsContentValueJson)
             } else {
-                println("Could not create settings file")
+                println("Could not create settings file maybe because it exists already")
             }
         }
     }
 
     fun readDownloadLocation(): String? {
-        val settingsDirectory = File("$USER_HOME/Downloads/mediaDownloader/settings")
-        var downloadLocation: String? = null
+        val defaultSettingsDirectory = File("$USER_HOME/Documents/mediaDownloader/settings")
+        var downloadLocation: String? =  "$USER_HOME/Documents/mediaDownloader"
+        var settingsFile: File? = null
 
-        if (settingsDirectory.exists()) {
-            val settingsFile = File("${settingsDirectory}/settings.json")
+        if (defaultSettingsDirectory.exists()) {
+            println("Settings directory already exists: $defaultSettingsDirectory")
+            settingsFile = File("${defaultSettingsDirectory}/settings.json")
+            println("Settings File: $settingsFile")
             if(settingsFile.createNewFile()){
                 val gson = Gson()
                 val jsonReader = JsonReader(FileReader(settingsFile))
                 val settingsOptions: SettingsOptions = gson.fromJson(jsonReader, SettingsOptions::class.java)
                 downloadLocation = settingsOptions.downloadLocation
+            } else {
+                println("settingsFile: $settingsFile already exists")
+                val gson = Gson()
+                val jsonReader = JsonReader(FileReader(settingsFile))
+                val settingsOptions: SettingsOptions = gson.fromJson(jsonReader, SettingsOptions::class.java)
+                downloadLocation = settingsOptions.downloadLocation
             }
+        } else {
+            println("Settings directory does not exist = Create one")
         }
         return downloadLocation
     }
 
     fun updateDownloadDirectory(downloadDirectory: String) {
 
-        val settingsDirectory = File("$USER_HOME/Downloads/mediaDownloader/settings")
+        val settingsDirectory = File("$USER_HOME/Documents/mediaDownloader/settings")
         if (settingsDirectory.exists()) {
             //todo if settings exists get the SettingsOptions from it
 
