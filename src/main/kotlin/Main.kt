@@ -284,7 +284,7 @@ fun readSettingsFile(): SettingsOptions? {
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
-    var shouldOpenSettingsWindow by remember { mutableStateOf(true) }
+    var shouldOpenSettingsWindow by remember { mutableStateOf(false) }
     var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocationFromSettingsFile() ?: "") }
 
 //    File(DEFAULT_DOWNLOAD_DIRECTORY).deleteRecursively()
