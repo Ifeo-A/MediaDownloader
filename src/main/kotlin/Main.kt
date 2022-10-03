@@ -34,20 +34,21 @@ import util.Constants.FILE
 import util.Constants.MAIN_WINDOW_TITLE
 import util.Constants.MEDIA_FORMAT
 import util.Constants.MEDIA_FORMAT_OPTIONS
-import util.Constants.SETTINGS
-import util.Constants.SettingsWindow.SAVE_LOCATION
+import util.Constants.Settings.SAVE_LOCATION
+import util.Constants.Settings.SETTINGS
+import util.Constants.Settings.SettingsJSON.DEFAULT_DOWNLOAD_DIRECTORY
 import util.Constants.URL_PLACEHOLDER
-import util.Constants.USER_HOME
 import util.Constants.VIDEO_FORMAT_OPTIONS
 import util.Constants.VIDEO_MEDIA_FORMAT
 import util.DownloadUtil.isDownloadComplete
 import util.SettingsUtil
-import java.io.File
 
 
 @Composable
 @Preview
-fun App(theDownloadLocation: String) {
+fun App(
+    theDownloadLocation: String? = remember { mutableStateOf("") }.toString()
+) {
 
     val viewModel = ViewModel()
 //    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
@@ -163,9 +164,6 @@ fun App(theDownloadLocation: String) {
                             isFileChooserOpen = false
                             fileChooserButtonClicked = false
                             downloadLocation = _filePath
-                            _filePath?.let {
-                                SettingsUtil.updateDownloadDirectory(it)
-                            }
                             println("File: $_filePath")
                         },
                         onError = { errorMessage ->
@@ -198,9 +196,10 @@ fun App(theDownloadLocation: String) {
 
                             val commandOptions = CommandOptions(
                                 url = downloadUrl,
-                                downloadFolder = downloadLocation ?: "$USER_HOME/Downloads/mediaDownloader",
+                                downloadFolder = downloadLocation ?: DEFAULT_DOWNLOAD_DIRECTORY,
                                 format = selectedMediaFileExtension.lowercase()
                             )
+                            println("CommandOptions Download location: ${commandOptions.downloadFolder}")
                             viewModel.startDownload(commandOptions)
                             downloadPercentage = "0"
                             isDownloading = true
@@ -286,8 +285,9 @@ fun readSettingsFile(): SettingsOptions? {
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
     var shouldOpenSettingsWindow by remember { mutableStateOf(true) }
-    var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocation() ?: "") }
+    var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocationFromSettingsFile() ?: "") }
 
+//    File(DEFAULT_DOWNLOAD_DIRECTORY).deleteRecursively()
     SettingsUtil.initDefaultDirectories()
 
     Window(
@@ -296,7 +296,8 @@ fun main() = application {
         state = rememberWindowState(width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
     ) {
 
-        MenuBar {
+
+    MenuBar {
             Menu(FILE, mnemonic = ',') {
                 Item(
                     SETTINGS,

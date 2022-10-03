@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import util.DownloadUtil
+import java.io.File
 
 
 class ViewModel() {
@@ -16,36 +17,65 @@ class ViewModel() {
     var downloadProperties: Flow<DownloadProperties> = _downloadProperties.receiveAsFlow()
 
     fun startDownload(commandOptions: CommandOptions) {
-        if (commandOptions.url.isNotEmpty()) {
-            downloadJob = myCoroutineScope.launch {
-                println("Starting download")
-                println("data.CommandOptions: $commandOptions")
 
-                println("BUILT COMMAND")
-                println("------------------------------------------------------")
-                commandOptions.builtCommand().toTypedArray().mapIndexed { index, string ->
-                    if(index == commandOptions.builtCommand().size -1){
-                        print("\"$string\"")
-                        println()
-                    } else {
-                        print("\"$string\", ")
+        when (downloadLocationExistsOrCreate(commandOptions.downloadFolder)) {
+            FileCreatedResult.FileCreated,
+            FileCreatedResult.FileAlreadyExists -> {
+                if (commandOptions.url.isNotEmpty()) {
+                    downloadJob = myCoroutineScope.launch {
+                        println("Starting download")
+                        println("data.CommandOptions: $commandOptions")
+
+                        println("BUILT COMMAND")
+                        println("------------------------------------------------------")
+                        commandOptions.builtCommand().toTypedArray().mapIndexed { index, string ->
+                            if (index == commandOptions.builtCommand().size - 1) {
+                                print("\"$string\"")
+                                println()
+                            } else {
+                                print("\"$string\", ")
+                            }
+                        }
+                        println("------------------------------------------------------")
+
+                        DownloadUtil.startDownload(
+                            downloadFolder = commandOptions.downloadFolder,
+                            builtCommand = mutableListOf(*commandOptions.builtCommand().toTypedArray())
+                        ).collect { downloadProperties ->
+                            _downloadProperties.send(downloadProperties)
+
+                            if (downloadProcess == null) {
+                                downloadProcess = downloadProperties.process
+                            }
+                        }
                     }
-                }
-                println("------------------------------------------------------")
 
-                DownloadUtil.startDownload(
-                    downloadFolder = commandOptions.downloadFolder,
-                    builtCommand = mutableListOf(*commandOptions.builtCommand().toTypedArray())
-                ).collect { downloadProperties ->
-                    _downloadProperties.send(downloadProperties)
-
-                    if (downloadProcess == null) {
-                        downloadProcess = downloadProperties.process
-                    }
+                } else {
+                    println("Nothing to download")
                 }
             }
-        } else {
-            println("Nothing to download")
+            is FileCreatedResult.SecurityException -> {}
+        }
+    }
+
+    sealed class FileCreatedResult {
+        object FileCreated : FileCreatedResult()
+        object FileAlreadyExists : FileCreatedResult()
+        class SecurityException(message: String) : FileCreatedResult()
+    }
+
+    private fun downloadLocationExistsOrCreate(downloadFolder: String): FileCreatedResult {
+
+        return try {
+            if (File(downloadFolder).mkdir()) {
+                FileCreatedResult.FileCreated
+            } else {
+                FileCreatedResult.FileAlreadyExists
+            }
+
+        } catch (e: SecurityException) {
+            println(e.printStackTrace())
+            FileCreatedResult.SecurityException(e.localizedMessage)
         }
     }
 

@@ -22,15 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
-import com.google.gson.Gson
-import com.google.gson.stream.JsonReader
-import theme.*
-import util.Constants.SETTINGS_WINDOW_TITLE
-import util.Constants.USER_HOME
+import theme.lightPurple
+import theme.lightRed
+import theme.orange
+import theme.yellow
+import util.Constants.Settings.SETTINGS_WINDOW_TITLE
 import util.SettingsUtil
-import util.SettingsUtil.saveSettings
-import java.io.File
-import java.io.FileReader
 
 @Preview
 @Composable
@@ -40,7 +37,7 @@ fun SettingsWindow(
     downloadDirectoryChanged: (filePath: String) -> Unit
 ) {
 
-    var downloadDirectory by remember { mutableStateOf(SettingsUtil.readDownloadLocation() ?: "") }
+    var downloadDirectory by remember { mutableStateOf(SettingsUtil.readDownloadLocationFromSettingsFile() ?: "") }
     var openFileChooser by remember { mutableStateOf(false) }
 
     Window(
