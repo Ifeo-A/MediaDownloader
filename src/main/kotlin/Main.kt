@@ -20,7 +20,6 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import components.DropDown
 import components.FilePicker
-import components.SettingsOptions
 import components.SettingsWindow
 import data.CommandOptions
 import kotlinx.coroutines.launch
@@ -265,21 +264,6 @@ fun App(
             }
         }
     }
-}
-
-fun readSettingsFile(): SettingsOptions? {
-    // look for mediaDownloader folder in user downlod folder
-    //look for settings file in users download folder
-    var settingsOptions: SettingsOptions? = null
-//
-//    val defaultSettingsFile = File("${USER_HOME}/Downloads/mediaDownloader.settings.json")
-//    if(!defaultSettingsFile.exists()){
-//        if(defaultSettingsFile.createNewFile()){
-//            settingsOptions = SettingsUtil.readSettingsFile(defaultSettingsFile)
-//        }
-//    }
-
-    return settingsOptions
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
