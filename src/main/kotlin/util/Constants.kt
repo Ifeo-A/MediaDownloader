@@ -2,14 +2,14 @@ package util
 
 object Constants {
 
+    val FILE_SEPARATOR = System.getProperty("file.separator")
+    val OS_NAME = System.getProperty("os.name").lowercase()
+    val USER_HOME = System.getProperty("user.home").lowercase()
+
     object Buttons {
         const val START = "START"
         const val STOP = "STOP"
     }
-
-    val OS_NAME = System.getProperty("os.name").lowercase()
-    val USER_HOME = System.getProperty("user.home").lowercase()
-
 
     object Settings {
         const val PROGRAM_NAME = "Media Downloader"

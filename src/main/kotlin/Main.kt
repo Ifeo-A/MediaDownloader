@@ -45,9 +45,7 @@ import util.SettingsUtil
 
 @Composable
 @Preview
-fun App(
-    theDownloadLocation: String? = remember { mutableStateOf("") }.toString()
-) {
+fun App(theDownloadLocation: String?) {
 
     val viewModel = ViewModel()
 //    var downloadUrl by remember { mutableStateOf("https://www.youtube.com/watch?v=bhrumYeZvjs") }
@@ -61,7 +59,7 @@ fun App(
     var isDownloading by remember { mutableStateOf(false) }
     var mediaName: String by remember { mutableStateOf("") }
 //    var downloadLocation: String? by remember { mutableStateOf(SettingsUtil.readDownloadLocation()) }
-    var downloadLocation: String? by remember { mutableStateOf(theDownloadLocation) }
+    var downloadLocation: String? = theDownloadLocation
     val myCoroutineScope = rememberCoroutineScope()
 
     MaterialTheme {
@@ -163,7 +161,7 @@ fun App(
                             isFileChooserOpen = false
                             fileChooserButtonClicked = false
                             downloadLocation = _filePath
-                            println("File: $_filePath")
+                            println("Download location: $_filePath")
                         },
                         onError = { errorMessage ->
                             isFileChooserOpen = false
