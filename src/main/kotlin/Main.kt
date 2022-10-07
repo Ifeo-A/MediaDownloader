@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -71,6 +72,7 @@ fun App(theDownloadLocation: String?) {
                 )
                 .padding(horizontal = 32.dp, vertical = 24.dp)
         ) {
+            TitleBar()
             Row(
                 modifier = Modifier
             ) {
@@ -275,11 +277,13 @@ fun main() = application {
     Window(
         title = MAIN_WINDOW_TITLE,
         onCloseRequest = ::exitApplication,
+        undecorated = true,
+        transparent = false,
+        resizable = false,
         state = rememberWindowState(width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
     ) {
 
-
-    MenuBar {
+        MenuBar {
             Menu(FILE, mnemonic = ',') {
                 Item(
                     SETTINGS,
@@ -289,6 +293,10 @@ fun main() = application {
                     shortcut = KeyShortcut(Key.Settings, ctrl = true)
                 )
             }
+        }
+
+        WindowDraggableArea {
+            TitleBar()
         }
 
         if (shouldOpenSettingsWindow) {
@@ -305,5 +313,16 @@ fun main() = application {
         }
 
         App(downloadLocation)
+    }
+}
+
+
+@Composable
+fun TitleBar() {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("The title bar")
     }
 }
