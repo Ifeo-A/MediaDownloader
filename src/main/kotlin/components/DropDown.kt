@@ -4,7 +4,6 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Text
@@ -29,11 +28,10 @@ fun DropDown(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box() {
-            Button(
-                onClick = { expanded = true },
-            ) {
-                Text(text = dropDownTitle)
-            }
+            GlassButton(
+                buttonText = dropDownTitle,
+                onButtonClick = { expanded = true },
+            )
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },

@@ -1,16 +1,12 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
@@ -18,9 +14,7 @@ import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import components.DropDown
-import components.FilePicker
-import components.SettingsWindow
+import components.*
 import data.CommandOptions
 import kotlinx.coroutines.launch
 import theme.*
@@ -36,7 +30,6 @@ import util.Constants.MEDIA_FORMAT_OPTIONS
 import util.Constants.Settings.SAVE_LOCATION
 import util.Constants.Settings.SETTINGS
 import util.Constants.Settings.SettingsJSON.DEFAULT_DOWNLOAD_DIRECTORY
-import util.Constants.URL_PLACEHOLDER
 import util.Constants.VIDEO_FORMAT_OPTIONS
 import util.Constants.VIDEO_MEDIA_FORMAT
 import util.DownloadUtil.isDownloadComplete
@@ -53,7 +46,7 @@ fun App(theDownloadLocation: String?) {
     var selectedMediaFormat by remember { mutableStateOf(VIDEO_MEDIA_FORMAT) } // Video or Audio
     var selectedMediaFileExtension by remember { mutableStateOf(VIDEO_FORMAT_OPTIONS.first()) } //"mp4
     var isFileChooserOpen by remember { mutableStateOf(false) }
-    var fileChooserButtonClicked by remember { mutableStateOf(false) }
+    var saveLocationButtonClicked by remember { mutableStateOf(false) }
     var downloadPercentage by remember { mutableStateOf("0") }
     var downloadButtonText by remember { mutableStateOf(START) }
     var isDownloading by remember { mutableStateOf(false) }
@@ -71,37 +64,9 @@ fun App(theDownloadLocation: String?) {
                 )
                 .padding(horizontal = 32.dp, vertical = 24.dp)
         ) {
-            Row(
-                modifier = Modifier
-            ) {
-                // URL bar
-                TextField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .border(
-                            border = BorderStroke(
-                                width = 1.dp,
-                                brush = Brush.linearGradient(listOf(orange, yellow))
-                            ),
-                            shape = CircleShape
-                        ),
-                    value = downloadUrl,
-                    singleLine = true,
-                    onValueChange = { downloadUrl = it },
-                    placeholder = {
-                        Text(URL_PLACEHOLDER)
-                    },
-                    shape = CircleShape,
-                    colors = TextFieldDefaults.textFieldColors(
-                        textColor = Color.White,
-                        disabledTextColor = Color.Transparent,
-                        backgroundColor = transparentWhite,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        cursorColor = Color.White
-                    )
-                )
+
+            UrlBar(downloadUrl) { urlBarText ->
+                downloadUrl = urlBarText
             }
 
             Spacer(Modifier.padding(vertical = 30.dp))
@@ -155,40 +120,39 @@ fun App(theDownloadLocation: String?) {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                if (fileChooserButtonClicked) {
+                // Open file chooser if save location button is clicked
+                if (saveLocationButtonClicked) {
                     FilePicker(
                         onCloseRequest = { _filePath ->
                             isFileChooserOpen = false
-                            fileChooserButtonClicked = false
+                            saveLocationButtonClicked = false
                             downloadLocation = _filePath
                             println("Download location: $_filePath")
                         },
                         onError = { errorMessage ->
                             isFileChooserOpen = false
-                            fileChooserButtonClicked = false
+                            saveLocationButtonClicked = false
                             println("Error: $errorMessage")
                         }
                     )
                 }
 
                 // Save location button
-                Button(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = {
+                GlassButton(
+                    buttonText = SAVE_LOCATION,
+                    onButtonClick = {
                         //Open file picker
-                        fileChooserButtonClicked = true
+                        saveLocationButtonClicked = true
                     }
-                ) {
-                    Text(SAVE_LOCATION)
-                }
+                )
                 Text(text = downloadLocation ?: "")
 
                 Divider(Modifier.padding(vertical = 30.dp))
 
                 //Start/STOP button - start download
-                Button(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = {
+                GlassButton(
+                    buttonText = downloadButtonText,
+                    onButtonClick = {
                         if (!isDownloading) {
 
                             val commandOptions = CommandOptions(
@@ -237,9 +201,7 @@ fun App(theDownloadLocation: String?) {
                             isDownloading = false
                         }
                     }
-                ) {
-                    Text(text = downloadButtonText)
-                }
+                )
 
                 if (mediaName.isNotEmpty()) {
                     Text(
