@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,15 +43,16 @@ fun DropDown(
                             selectedText = optionText
                         },
                     ) {
-                        Text(
+                        MyText(
                             text = optionText,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth())
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
                     }
                 }
             }
         }
-        Text(selectedText, textAlign = TextAlign.Center)
+        MyText(selectedText, textAlign = TextAlign.Center)
     }
 }

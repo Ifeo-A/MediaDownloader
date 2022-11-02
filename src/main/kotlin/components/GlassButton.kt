@@ -38,6 +38,6 @@ fun GlassButton(
         shape = RoundedCornerShape(45.dp),
         onClick = { onButtonClick() }
     ) {
-        Text(text = buttonText)
+        MyText(text = buttonText)
     }
 }

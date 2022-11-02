@@ -146,7 +146,7 @@ fun App(theDownloadLocation: String?) {
                         saveLocationButtonClicked = true
                     }
                 )
-                Text(text = downloadLocation ?: "")
+                MyText(text = downloadLocation ?: "")
 
                 Divider(Modifier.padding(vertical = 30.dp))
 
@@ -205,7 +205,7 @@ fun App(theDownloadLocation: String?) {
                 )
 
                 if (mediaName.isNotEmpty()) {
-                    Text(
+                    MyText(
                         text = if (isDownloadComplete(downloadPercentage)) {
                             "Downloaded: $mediaName"
                         } else {
@@ -216,7 +216,7 @@ fun App(theDownloadLocation: String?) {
                 if (isDownloadComplete(downloadPercentage)) {
                     downloadButtonText = START
                 }
-                Text(
+                MyText(
                     text = if (isDownloadComplete(downloadPercentage)) {
                         DOWNLOAD_COMPLETE
                     } else "${downloadPercentage}%"

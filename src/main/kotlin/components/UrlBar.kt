@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -41,7 +40,7 @@ fun UrlBar(downloadUrl: String, url: (url: String) -> Unit) {
                 url(it)
             },
             placeholder = {
-                Text(Constants.URL_PLACEHOLDER)
+                MyText(Constants.URL_PLACEHOLDER)
             },
             shape = CircleShape,
             colors = TextFieldDefaults.textFieldColors(
