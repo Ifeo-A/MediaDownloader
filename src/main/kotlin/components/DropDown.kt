@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import theme.black
 
 @Composable
 @Preview
@@ -46,6 +47,7 @@ fun DropDown(
                         MyText(
                             text = optionText,
                             textAlign = TextAlign.Center,
+                            color = black,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -53,6 +55,9 @@ fun DropDown(
                 }
             }
         }
-        MyText(selectedText, textAlign = TextAlign.Center)
+        MyText(
+            text = selectedText,
+            textAlign = TextAlign.Center
+        )
     }
 }
