@@ -1,6 +1,7 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,11 +11,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.MenuBar
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import components.*
+import components.titleBar.TitleBar
 import data.CommandOptions
 import kotlinx.coroutines.launch
 import theme.*
@@ -220,7 +219,6 @@ fun App(theDownloadLocation: String?) {
                         DOWNLOAD_COMPLETE
                     } else "${downloadPercentage}%"
                 )
-
             }
         }
     }
@@ -230,18 +228,18 @@ fun App(theDownloadLocation: String?) {
 fun main() = application {
     var shouldOpenSettingsWindow by remember { mutableStateOf(false) }
     var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocationFromSettingsFile() ?: "") }
-
+    val windowState = rememberWindowState(placement = WindowPlacement.Floating, width = WINDOW_WIDTH)
 //    File(DEFAULT_DOWNLOAD_DIRECTORY).deleteRecursively()
     SettingsUtil.initDefaultDirectories()
 
     Window(
         title = MAIN_WINDOW_TITLE,
         onCloseRequest = ::exitApplication,
-        state = rememberWindowState(width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
+        undecorated = true,
+        state = windowState
     ) {
 
-
-    MenuBar {
+        MenuBar {
             Menu(FILE, mnemonic = ',') {
                 Item(
                     SETTINGS,
@@ -251,6 +249,19 @@ fun main() = application {
                     shortcut = KeyShortcut(Key.Settings, ctrl = true)
                 )
             }
+        }
+
+        Column {
+            WindowDraggableArea() {
+                TitleBar(
+                    windowState = windowState,
+                    onMinimizeClicked = { windowState.isMinimized = !windowState.isMinimized },
+                    onMaximizeClicked = { windowState.placement = WindowPlacement.Fullscreen },
+                    onCloseClicked = { exitApplication() }
+                )
+            }
+
+            App(downloadLocation)
         }
 
         if (shouldOpenSettingsWindow) {
@@ -266,6 +277,5 @@ fun main() = application {
             )
         }
 
-        App(downloadLocation)
     }
 }

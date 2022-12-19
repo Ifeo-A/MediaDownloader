@@ -2,6 +2,7 @@ package components
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -40,4 +41,20 @@ fun GlassButton(
     ) {
         MyText(text = buttonText)
     }
+}
+
+@Composable
+@Preview
+private fun GlassButtonPreview() {
+
+    Row(
+        modifier = Modifier
+            .background(color = black.copy(alpha = 0.8f))
+            .fillMaxSize()
+    ) {
+        GlassButton(
+            "Button",
+        )
+    }
+
 }

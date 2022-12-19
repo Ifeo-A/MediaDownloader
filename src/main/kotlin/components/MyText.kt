@@ -1,6 +1,9 @@
 package components
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import theme.black
 import theme.white
 
 @Preview
@@ -22,7 +26,7 @@ import theme.white
 fun MyText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    color: Color = white,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -40,7 +44,7 @@ fun MyText(
     Text(
         text = text,
         modifier = modifier,
-        color = white,
+        color = color,
         fontSize = fontSize,
         fontStyle = fontStyle,
         fontWeight = fontWeight,
@@ -54,6 +58,19 @@ fun MyText(
         maxLines = maxLines,
         onTextLayout = onTextLayout,
         style = style
-
     )
+}
+
+@Composable
+@Preview
+private fun MyTextPreview() {
+    Row(
+        modifier = Modifier
+            .background(color = black.copy(alpha = 0.8f))
+            .fillMaxSize()
+    ) {
+        MyText(
+            text = "Text"
+        )
+    }
 }
