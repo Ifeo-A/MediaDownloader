@@ -41,8 +41,7 @@ fun WindowVisibilityControlButton(
             contentDescription = "logo",
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(25.dp)
-                .padding(4.dp)
+                .size(14.dp)
                 .clickable { onClick() }
         )
 
