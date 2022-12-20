@@ -2,11 +2,13 @@ package components.titleBar
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import theme.black
@@ -28,8 +30,7 @@ fun TitleBar(
             .background(
                 brush = Brush
                     .linearGradient(listOf(darkRed, darkPurple))
-            )
-            .padding(0.dp),
+            ),
         horizontalArrangement = Arrangement.End
     ) {
 

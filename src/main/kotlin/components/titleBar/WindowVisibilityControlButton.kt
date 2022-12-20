@@ -1,9 +1,7 @@
 package components.titleBar
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Surface
@@ -20,6 +18,7 @@ sealed class ButtonType {
     object Close : ButtonType()
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun WindowVisibilityControlButton(
@@ -32,9 +31,10 @@ fun WindowVisibilityControlButton(
 
     Box(
         modifier = Modifier
+            .onClick { onClick() }
             .padding(4.dp)
             .border(width = 2.dp, color = black, shape = CircleShape)
-            .padding(8.dp),
+            .padding(8.dp)
     ) {
         Image(
             painterResource(resourcePath = "images/${imageName}"),
@@ -42,9 +42,7 @@ fun WindowVisibilityControlButton(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(14.dp)
-                .clickable { onClick() }
         )
-
     }
 
 }
