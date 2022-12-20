@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import components.*
@@ -229,14 +230,16 @@ fun main() = application {
     var shouldOpenSettingsWindow by remember { mutableStateOf(false) }
     var downloadLocation by remember { mutableStateOf(SettingsUtil.readDownloadLocationFromSettingsFile() ?: "") }
     val windowState = rememberWindowState(placement = WindowPlacement.Floating, width = WINDOW_WIDTH)
+    val windowIcon = painterResource(resourcePath = "images/downloadIcon.png")
 //    File(DEFAULT_DOWNLOAD_DIRECTORY).deleteRecursively()
     SettingsUtil.initDefaultDirectories()
 
     Window(
         title = MAIN_WINDOW_TITLE,
+        icon = windowIcon,
         onCloseRequest = ::exitApplication,
         undecorated = true,
-        state = windowState
+        state = windowState,
     ) {
 
         MenuBar {
