@@ -1,7 +1,7 @@
 package data
 
 data class CommandOptions(
-    val downloadTool: String = "youtube-dl",
+    val downloadTool: String = "yt-dlp",
     val url: String,
     val downloadFolder: String,
     val format: String
@@ -9,7 +9,7 @@ data class CommandOptions(
     fun builtCommand(): List<String>{
         val array = mutableListOf<String>(downloadTool)
 
-//        when(format){
+//        when(format){"https://www.youtube.com/watch?v=23QThcOyUsA"
 //            MediaFormat.AudioMediaFormat.AAC,
 //            MediaFormat.AudioMediaFormat.MP3 -> {
 //                array.add("--extract-audio")
